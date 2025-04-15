@@ -6,6 +6,7 @@ use App\Models\Kendaraan;
 use App\Models\Pelanggan;
 use App\Models\Penyewaan;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -31,13 +32,14 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        $revenueData = Penyewaan::selectRaw('YEAR(created_at) year, MONTH(created_at) month, SUM(total_biaya) total')
-            ->where('status', 'selesai')
-            ->whereBetween('created_at', [now()->subMonths(5)->startOfMonth(), now()->endOfMonth()])
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
+        $revenueData = DB::table('penyewaans')
+        ->selectRaw('EXTRACT(YEAR FROM created_at) AS year, EXTRACT(MONTH FROM created_at) AS month, SUM(total_biaya) AS total')
+        ->where('status', 'selesai')
+        ->whereBetween('created_at', ['2024-11-01 00:00:00', '2025-04-30 23:59:59'])
+        ->groupBy('year', 'month')
+        ->orderBy('year', 'asc')
+        ->orderBy('month', 'asc')
+        ->get();
 
         $revenueLabels = [];
         $revenueValues = [];
