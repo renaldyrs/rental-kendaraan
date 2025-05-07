@@ -133,7 +133,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label for="jumlah" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran</label>
-                                <input type="number" id="jumlah" name="jumlah" min="1" max="{{ $penyewaan->total_biaya - $penyewaan->dibayar }}" required
+                                <input type="text" id="jumlah" name="jumlah" min="1" max="{{ $penyewaan->total_biaya - $penyewaan->dibayar }}" required
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                             </div>
                             <div>

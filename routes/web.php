@@ -7,10 +7,8 @@ use App\Http\Controllers\KendaraanController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\PenyewaanController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporanController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -28,7 +26,7 @@ require __DIR__ . '/auth.php';
 
 // Route untuk home
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -63,3 +61,8 @@ Route::post('/penyewaan/{penyewaan}/cancel', [PenyewaanController::class, 'cance
     ->name('penyewaan.cancel');
 Route::post('/penyewaan/{penyewaan}/payment', [PenyewaanController::class, 'payment'])
     ->name('penyewaan.payment');
+
+    Route::prefix('laporan')->group(function () {
+        Route::get('/', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('/export', [LaporanController::class, 'export'])->name('laporan.export');
+    });

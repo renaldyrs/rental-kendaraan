@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let hari = 0;
         if (!isNaN(mulai.getTime()) && !isNaN(selesai.getTime())) {
             const diffTime = Math.abs(selesai - mulai);
-            hari = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            hari = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
         
         tarifPerHari.textContent = 'Rp' + tarif.toLocaleString('id-ID');

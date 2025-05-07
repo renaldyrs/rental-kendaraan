@@ -30,33 +30,49 @@ class RentalService
     }
 
     public function createRental($data)
-    {
-        return DB::transaction(function () use ($data) {
-            $kendaraan = Kendaraan::findOrFail($data['kendaraan_id']);
-            $start = Carbon::parse($data['tanggal_mulai']);
-            $end = Carbon::parse($data['tanggal_selesai']);
-            $days = $end->diffInDays($start) + 1;
-            
-            $penyewaan = Penyewaan::create([
-                'pelanggan_id' => $data['pelanggan_id'],
-                'kendaraan_id' => $data['kendaraan_id'],
-                'tanggal_mulai' => $start,
-                'tanggal_selesai' => $end,
-                'total_biaya' => $days * $kendaraan->tarif_sewa,
-                'status' => 'reservasi',
-                'metode_pembayaran' => $data['metode_pembayaran'],
-                'catatan' => $data['catatan'] ?? null
-            ]);
-            
-            // Jika langsung disewa, update status
-            if ($start->isToday()) {
-                $kendaraan->update(['status' => 'disewa']);
-                $penyewaan->update(['status' => 'berjalan']);
-            }
-            
-            return $penyewaan;
-        });
-    }
+{
+    return DB::transaction(function () use ($data) {
+        $kendaraan = Kendaraan::findOrFail($data['kendaraan_id']);
+        
+        // Pastikan tanggal valid
+        $start = Carbon::parse($data['tanggal_mulai']);
+        $end = Carbon::parse($data['tanggal_selesai']);
+        
+        // Validasi tanggal
+        if ($end <= $start) {
+            throw new \Exception("Tanggal selesai harus setelah tanggal mulai");
+        }
+        
+        $days = $start->diffInDays($end); // +1 untuk menghitung inklusif
+        
+        // Pastikan tarif sewa valid
+        if ($kendaraan->tarif_sewa <= 0) {
+            throw new \Exception("Tarif sewa kendaraan tidak valid");
+        }
+        
+        $totalBiaya = $days * $kendaraan->tarif_sewa;
+        
+        $penyewaan = Penyewaan::create([
+            'pelanggan_id' => $data['pelanggan_id'],
+            'kendaraan_id' => $data['kendaraan_id'],
+            'tanggal_mulai' => $start,
+            'tanggal_selesai' => $end,
+            'total_biaya' => $totalBiaya,
+            'status' => 'reservasi',
+            'metode_pembayaran' => $data['metode_pembayaran'],
+            'catatan' => $data['catatan'] ?? null
+        ]);
+        
+        // Debug log
+        \Log::info('Penyewaan created', [
+            'days' => $days,
+            'tarif' => $kendaraan->tarif_sewa,
+            'total' => $totalBiaya
+        ]);
+        
+        return $penyewaan;
+    });
+}
 
     public function getAvailableVehicles($startDate, $endDate, $kategori = null)
     {

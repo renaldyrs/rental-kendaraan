@@ -135,6 +135,7 @@ class PenyewaanController extends Controller
     {
         $penyewaan->pembayarans = $penyewaan->pembayarans ?? collect();
         $penyewaan->load(['payments', 'pelanggan', 'kendaraan']);
+        
         return view('penyewaan.show', compact('penyewaan'));
     }
 
